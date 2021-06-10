@@ -12,3 +12,8 @@ data = tf.keras.datasets.mnist
 
 x_train,x_val = x_train/255.0*2-1,x_val/255.0*2-1
 
+N, H, W = x_train.shape
+D = H * W
+x_train = x_train.reshape(-1, D)
+x_val = x_val.reshape(-1, D)
+
