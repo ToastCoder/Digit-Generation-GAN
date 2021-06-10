@@ -12,8 +12,34 @@ data = tf.keras.datasets.mnist
 
 x_train,x_val = x_train/255.0*2-1,x_val/255.0*2-1
 
+# FLATTENING THE DATA
 N, H, W = x_train.shape
 D = H * W
 x_train = x_train.reshape(-1, D)
 x_val = x_val.reshape(-1, D)
+
+# GIVING THE DIMENSIONALITY OF LATENT SPACE
+latent_dim = 100
+
+# GENERATOR MODEL
+def generator_model(latent_dim):
+    model = tf.keras.models.Model()
+    model.add(tf.keras.layers.Input(shape=(latent_dim,)))
+    model.add(tf.keras.layers.Dense(256, activation = tf.keras.layers.LeakyReLU(alpha = 0.2)))
+    model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
+    model.add(tf.keras.layers.Dense(512, activation = tf.keras.layers.LeakyReLU(alpha = 0.2)))
+    model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
+    model.add(tf.keras.layers.Dense(1024, activation = tf.keras.layers.LeakyReLU(alpha = 0.2)))
+    model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
+    model.add(tf.keras.layers.Dense(activation = 'tanh'))
+    return model
+
+# DISCRIMINATOR MODEL
+def discriminator_model(img_size):
+    model = tf.keras.models.Model()
+    model.add(tf.keras.layers.Input(shape=(img_size,)))
+    model.add(tf.keras.layers.Dense(512, activation = tf.keras.layers.LeakyReLU(alpha = 0.2)))
+    model.add(tf.keras.layers.Dense(256, activation = tf.keras.layers.LeakyReLU(alpha = 0.2)))
+    model.add(tf.keras.layers.Dense(1, activation = 'sigmoid'))
+    return model
 
