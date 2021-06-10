@@ -43,3 +43,17 @@ def discriminator_model(img_size):
     model.add(tf.keras.layers.Dense(1, activation = 'sigmoid'))
     return model
 
+
+# COMPILING MODELS FOR TRAINING
+discriminator = discriminator_model(D)
+discriminator.compile(loss = 'binary_crossentropy',optimizer = tf.keras.optimizers.Adam(0.0002,0.5),metrics = ['accuracy'])
+
+generator = generator_model(latent_dim)
+z = tf.keras.layers.Input(shape=(latent_dim))
+img = generator(z)
+discriminator.trainable = False
+fake_pred = discriminator(img)
+
+combined_model = tf.keras.models.Model(z,fake_pred)
+combined_model.compile(loss = 'binary_crossentropy',optimizer = tf.keras.optimizers.Adam(0.0002,0.5))
+
