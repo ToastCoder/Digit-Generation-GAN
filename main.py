@@ -23,24 +23,26 @@ latent_dim = 100
 
 # GENERATOR MODEL
 def generator_model(latent_dim):
-    model = tf.keras.models.Model()
-    model.add(tf.keras.layers.Input(shape=(latent_dim,)))
-    model.add(tf.keras.layers.Dense(256, activation = tf.keras.layers.LeakyReLU(alpha = 0.2)))
-    model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
-    model.add(tf.keras.layers.Dense(512, activation = tf.keras.layers.LeakyReLU(alpha = 0.2)))
-    model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
-    model.add(tf.keras.layers.Dense(1024, activation = tf.keras.layers.LeakyReLU(alpha = 0.2)))
-    model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
-    model.add(tf.keras.layers.Dense(activation = 'tanh'))
+    
+    i = tf.keras.layers.Input(shape=(latent_dim,))
+    o = tf.keras.layers.Dense(256, activation = tf.keras.layers.LeakyReLU(alpha = 0.2))(i)
+    o = tf.keras.layers.BatchNormalization(momentum = 0.7)(o)
+    o = tf.keras.layers.Dense(512, activation = tf.keras.layers.LeakyReLU(alpha = 0.2))(o)
+    o = tf.keras.layers.BatchNormalization(momentum = 0.7)(o)
+    o = tf.keras.layers.Dense(1024, activation = tf.keras.layers.LeakyReLU(alpha = 0.2))(o)
+    o = tf.keras.layers.BatchNormalization(momentum = 0.7)(o)
+    o = tf.keras.layers.Dense(1,activation = 'tanh')(o)
+    model = tf.keras.models.Model(i,o)
     return model
 
 # DISCRIMINATOR MODEL
 def discriminator_model(img_size):
-    model = tf.keras.models.Model()
-    model.add(tf.keras.layers.Input(shape=(img_size,)))
-    model.add(tf.keras.layers.Dense(512, activation = tf.keras.layers.LeakyReLU(alpha = 0.2)))
-    model.add(tf.keras.layers.Dense(256, activation = tf.keras.layers.LeakyReLU(alpha = 0.2)))
-    model.add(tf.keras.layers.Dense(1, activation = 'sigmoid'))
+    
+    i = tf.keras.layers.Input(shape=(img_size,))
+    o = tf.keras.layers.Dense(512, activation = tf.keras.layers.LeakyReLU(alpha = 0.2))(i)
+    o = tf.keras.layers.Dense(256, activation = tf.keras.layers.LeakyReLU(alpha = 0.2))(o)
+    o = tf.keras.layers.Dense(1, activation = 'sigmoid')(o)
+    model = tf.keras.models.Model(i,o)
     return model
 
 
@@ -88,3 +90,42 @@ def sample_images(epoch):
       idx += 1
   fig.savefig("gan_images/%d.png" % epoch)
   plt.close()
+
+# Main training loop
+for epoch in range(EPOCHS):
+
+  # Select a random batch of images
+  idx = np.random.randint(0, x_train.shape[0], BATCH_SIZE)
+  real_imgs = x_train[idx]
+  
+  # Generate fake images
+  noise = np.random.randn(BATCH_SIZE, latent_dim)
+  fake_imgs = generator.predict(noise)
+  
+  # Train the discriminator
+  # both loss and accuracy are returned
+  d_loss_real, d_acc_real = discriminator.train_on_batch(real_imgs, ones)
+  d_loss_fake, d_acc_fake = discriminator.train_on_batch(fake_imgs, zeros)
+  d_loss = 0.5 * (d_loss_real + d_loss_fake)
+  d_acc  = 0.5 * (d_acc_real + d_acc_fake)
+  
+
+  
+  noise = np.random.randn(BATCH_SIZE, latent_dim)
+  g_loss = combined_model.train_on_batch(noise, ones)
+  
+  # do it again!
+  noise = np.random.randn(BATCH_SIZE, latent_dim)
+  g_loss = combined_model.train_on_batch(noise, ones)
+  
+  # Save the losses
+  d_losses.append(d_loss)
+  g_losses.append(g_loss)
+  
+  if epoch % 100 == 0:
+    print(f"epoch: {epoch+1}/{EPOCHS}, d_loss: {d_loss:.2f}, \
+      d_acc: {d_acc:.2f}, g_loss: {g_loss:.2f}")
+  
+  if epoch % SAMPLE_PERIOD == 0:
+    sample_images(epoch)
+
