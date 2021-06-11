@@ -70,3 +70,21 @@ g_losses = []
 
 if not os.path.exists('GAN_Images'):
   os.makedirs('GAN_Images')
+
+def sample_images(epoch):
+  rows, cols = 5, 5
+  noise = np.random.randn(rows * cols, latent_dim)
+  imgs = generator.predict(noise)
+
+  # Rescale images 0 - 1
+  imgs = 0.5 * imgs + 0.5
+
+  fig, axs = plt.subplots(rows, cols)
+  idx = 0
+  for i in range(rows):
+    for j in range(cols):
+      axs[i,j].imshow(imgs[idx].reshape(H, W), cmap='gray')
+      axs[i,j].axis('off')
+      idx += 1
+  fig.savefig("gan_images/%d.png" % epoch)
+  plt.close()
