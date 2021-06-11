@@ -57,3 +57,16 @@ fake_pred = discriminator(img)
 combined_model = tf.keras.models.Model(z,fake_pred)
 combined_model.compile(loss = 'binary_crossentropy',optimizer = tf.keras.optimizers.Adam(0.0002,0.5))
 
+# TRAINING THE GAN
+BATCH_SIZE = 32
+EPOCHS = 30000
+SAMPLE_PERIOD = 200
+
+ones = np.ones(BATCH_SIZE)
+zeros = np.zeros(BATCH_SIZE)
+
+d_losses = []
+g_losses = []
+
+if not os.path.exists('GAN_Images'):
+  os.makedirs('GAN_Images')
