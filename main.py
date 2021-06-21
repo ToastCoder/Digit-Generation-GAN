@@ -11,6 +11,7 @@ data = tf.keras.datasets.mnist
 (x_train,y_train),(x_val,y_val) = data.load_data()
 
 x_train,x_val = x_train/255.0*2-1,x_val/255.0*2-1
+print("x_train.shape:", x_train.shape)
 
 # FLATTENING THE DATA
 N, H, W = x_train.shape
@@ -51,7 +52,7 @@ discriminator = discriminator_model(D)
 discriminator.compile(loss = 'binary_crossentropy',optimizer = tf.keras.optimizers.Adam(0.0002,0.5),metrics = ['accuracy'])
 
 generator = generator_model(latent_dim)
-z = tf.keras.layers.Input(shape=(latent_dim))
+z = tf.keras.layers.Input(shape=(latent_dim,))
 img = generator(z)
 discriminator.trainable = False
 fake_pred = discriminator(img)
