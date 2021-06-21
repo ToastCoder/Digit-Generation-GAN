@@ -32,7 +32,7 @@ def generator_model(latent_dim):
     o = tf.keras.layers.BatchNormalization(momentum = 0.7)(o)
     o = tf.keras.layers.Dense(1024, activation = tf.keras.layers.LeakyReLU(alpha = 0.2))(o)
     o = tf.keras.layers.BatchNormalization(momentum = 0.7)(o)
-    o = tf.keras.layers.Dense(1,activation = 'tanh')(o)
+    o = tf.keras.layers.Dense(D,activation = 'tanh')(o)
     model = tf.keras.models.Model(i,o)
     return model
 
@@ -48,13 +48,18 @@ def discriminator_model(img_size):
 
 
 # COMPILING MODELS FOR TRAINING
+print(D)
 discriminator = discriminator_model(D)
 discriminator.compile(loss = 'binary_crossentropy',optimizer = tf.keras.optimizers.Adam(0.0002,0.5),metrics = ['accuracy'])
 
 generator = generator_model(latent_dim)
 z = tf.keras.layers.Input(shape=(latent_dim,))
+print(z.shape)
 img = generator(z)
 discriminator.trainable = False
+
+
+print(img.shape)
 fake_pred = discriminator(img)
 
 combined_model = tf.keras.models.Model(z,fake_pred)
@@ -88,7 +93,7 @@ def sample_images(epoch):
       axs[i,j].imshow(imgs[idx].reshape(H, W), cmap='gray')
       axs[i,j].axis('off')
       idx += 1
-  fig.savefig("gan_images/%d.png" % epoch)
+  fig.savefig("GAN_Images/%d.png" % epoch)
   plt.close()
 
 
