@@ -124,8 +124,8 @@ for epoch in range(EPOCHS):
   g_losses.append(g_loss)
   
   if epoch % 100 == 0:
-    print(f"epoch: {epoch+1}/{EPOCHS}, d_loss: {d_loss:.2f}, \
-      d_acc: {d_acc:.2f}, g_loss: {g_loss:.2f}")
+    print(f"Epoch: {epoch+1}/{EPOCHS}, Discriminator Loss: {d_loss:.2f}, \
+            Discriminator Accuracy: : {d_acc:.2f}, Generation Accuracy: {g_loss:.2f}")
   
   if epoch % SAMPLE_PERIOD == 0:
     sample_images(epoch)
